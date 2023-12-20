@@ -1,0 +1,17 @@
+INSERT INTO 01_取引先チームメンバー抽出_登録用_NTT担当者コード
+SELECT A.[企業ID] AS AccountId
+, B.[Id] AS UserId
+, A.[NTT担当者コード] AS NTT担当者コード
+, C.[API参照名] AS TeamMemberRole
+, E.[分野区分(取引先チーム)] AS Field__c
+, "Read" AS AccountAccessLevel,
+ "None" AS CaseAccessLevel,
+ "None" AS OpportunityAccessLevel
+FROM (((受領データ_取引先チームメンバー AS A INNER JOIN [User] AS B ON A.[NTT担当者コード] = B.[NTTResponsibleCode__c])
+ INNER JOIN TeamMemberRole AS C ON A.[チーム内の役割] = C.[選択肢])
+ Field__c AS E ON A.[分野区分(取引先チーム)] = E.[選択肢])
+ LEFT JOIN AccountTeamMemberWithUser AS D ON A.[NTT担当者コード条件検索用] = D.[NTT担当者コード条件検索用]
+WHERE A.[区分] IN ('登録', '更新')
+AND Nz(A.[NTT担当者コード], "") <> ""
+AND B.[IsActive] = true
+AND Nz(D.[Id], "") = "";
